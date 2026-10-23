@@ -1,0 +1,1229 @@
+<title>Koure Forms</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Michroma&display=swap">
+<style>
+/* Layout: a drafting set. A dark title-block sidebar holds the menu; the sheets to its right
+   carry the work. Blueprint-blue marks dimensions and the current place on the page. */
+:root {
+  --bg: #F5F6F3;
+  --sheet: #FFFFFF;
+  --ink: #12161B;
+  --muted: #56606A;
+  --line: #CFD6D3;
+  --blue: #1B4FA0;
+  --wood: #E6D7BC;
+  --wood-line: #B79F78;
+  --side-bg: #12161B;
+  --side-fg: #E8EDF1;
+  --side-muted: #8F9AA5;
+  --side-line: #2A333D;
+  --side-accent: #8DB6F5;
+  --show-light: block;
+  --show-dark: none;
+  --font-display: "Michroma", "Eurostile", "Arial Narrow", sans-serif;
+  --font-body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --side-w: 248px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C131B; --sheet: #121C26; --ink: #E8EDF1; --muted: #98A4AF; --line: #263340;
+    --blue: #74A8F4; --wood: #3B3225; --wood-line: #8A7656;
+    --side-bg: #070B10; --side-fg: #E8EDF1; --side-muted: #8592A0; --side-line: #1E2833; --side-accent: #8DB6F5;
+    --show-light: none; --show-dark: block;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C131B; --sheet: #121C26; --ink: #E8EDF1; --muted: #98A4AF; --line: #263340;
+  --blue: #74A8F4; --wood: #3B3225; --wood-line: #8A7656;
+  --side-bg: #070B10; --side-fg: #E8EDF1; --side-muted: #8592A0; --side-line: #1E2833; --side-accent: #8DB6F5;
+  --show-light: none; --show-dark: block;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  background: var(--side-bg); z-index: 60;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.only-light { display: var(--show-light); }
+.only-dark { display: var(--show-dark); }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; margin: 0; text-wrap: balance; line-height: 1.15; }
+h2 { font-size: clamp(1.35rem, 3.2vw, 1.9rem); letter-spacing: 0.01em; }
+h3 { font-size: 1rem; letter-spacing: 0.02em; }
+/* bold titles: the display face has one weight, so thicken the strokes */
+h1, h2 { -webkit-text-stroke: 0.04em currentColor; letter-spacing: 0.025em; }
+h3, .ptable caption { -webkit-text-stroke: 0.035em currentColor; letter-spacing: 0.03em; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- sidebar ---------- */
+.side {
+  position: fixed; top: 0; bottom: 0; left: 0; width: var(--side-w); z-index: 40;
+  background: var(--side-bg); color: var(--side-fg);
+  display: flex; flex-direction: column; gap: 28px;
+  padding: calc(28px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)) calc(24px + env(safe-area-inset-left, 0px));
+  overflow-y: auto;
+}
+.side-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.side-brand img { width: 40px; flex: none; }
+.side-brand span { font-family: var(--font-display); font-size: 0.86rem; letter-spacing: 0.14em; line-height: 1.3; }
+.side nav { display: grid; gap: 2px; }
+.side nav a {
+  display: flex; align-items: baseline; gap: 12px; text-decoration: none;
+  padding: 9px 10px; border-left: 2px solid transparent; color: var(--side-muted);
+  font-size: 0.96rem;
+}
+.side nav a .n { font-family: var(--font-mono); font-size: 0.72rem; color: var(--side-muted); opacity: 0.7; min-width: 18px; }
+.side nav a:hover { color: var(--side-fg); background: rgba(255,255,255,0.04); }
+.side nav a[aria-current="true"] { color: var(--side-fg); border-left-color: var(--side-accent); background: rgba(255,255,255,0.06); }
+.side nav a[aria-current="true"] .n { color: var(--side-accent); opacity: 1; }
+.side-foot { margin-top: auto; display: grid; gap: 10px; padding-top: 20px; border-top: 1px solid var(--side-line); }
+.side-foot .mono { color: var(--side-muted); }
+.side-foot b { display: block; font-weight: 500; font-size: 0.92rem; }
+.side-cta {
+  display: block; text-align: center; text-decoration: none; margin-top: 6px;
+  font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 12px 14px; background: var(--side-accent); color: #0B1118;
+}
+.side-cta:hover { background: var(--side-fg); }
+
+/* mobile top bar + drawer */
+.topbar { display: none; }
+.scrim { display: none; }
+@media (max-width: 999px) {
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30;
+    background: var(--side-bg); color: var(--side-fg); min-height: 58px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .topbar .side-brand img { width: 32px; }
+  .topbar .side-brand span { font-size: 0.74rem; }
+  .menu-btn {
+    display: flex; align-items: center; gap: 10px; background: transparent; color: var(--side-fg);
+    border: 1px solid var(--side-line); padding: 9px 14px; cursor: pointer;
+    font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .menu-btn i { display: grid; gap: 4px; }
+  .menu-btn i::before, .menu-btn i::after { content: ""; display: block; width: 16px; height: 1.5px; background: currentColor; }
+  .side { transform: translateX(-100%); transition: transform .25s ease; width: min(300px, 86vw); z-index: 70; }
+  .side.open { transform: none; box-shadow: 0 0 0 100vmax rgba(5, 8, 12, 0.55); }
+  .side .close-side { display: block; }
+}
+.close-side {
+  display: none; align-self: flex-start; background: transparent; border: 1px solid var(--side-line);
+  color: var(--side-fg); padding: 8px 12px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase;
+}
+@media (prefers-reduced-motion: reduce) { .side { transition: none; } html { scroll-behavior: auto; } }
+
+/* ---------- main ---------- */
+main, footer { margin-left: var(--side-w); }
+@media (max-width: 999px) { main, footer { margin-left: 0; } }
+.wrap {
+  width: 100%; max-width: 1100px; margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (min-width: 1000px) { .wrap { padding-left: 48px; padding-right: max(48px, env(safe-area-inset-right, 0px)); } }
+section { padding-block: clamp(56px, 8vw, 104px); scroll-margin-top: 70px; }
+@media (min-width: 1000px) { section { scroll-margin-top: 0; } }
+.alt { background: var(--sheet); }
+
+.head { display: grid; gap: 14px; margin-bottom: clamp(30px, 4.5vw, 52px); max-width: 46em; }
+.head h2::before { content: ""; display: block; width: 36px; height: 3px; background: var(--blue); margin-bottom: 18px; }
+.head p { color: var(--muted); }
+.sub { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; margin: clamp(44px, 6vw, 72px) 0 20px; }
+.sub h3 { font-size: 1.05rem; }
+
+.btn {
+  display: inline-block; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+  text-decoration: none; padding: 13px 20px; border: 1.5px solid var(--ink); color: var(--ink);
+}
+.btn.solid { background: var(--ink); color: var(--bg); }
+.btn:hover { border-color: var(--blue); color: var(--blue); }
+.btn.solid:hover { background: var(--blue); border-color: var(--blue); color: var(--bg); }
+
+/* hero */
+.hero { padding-top: clamp(28px, 5vw, 64px); }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 56px); align-items: center; }
+.hero h1 { font-size: clamp(1.7rem, 4.6vw, 3.4rem); margin-block: 18px 22px; }
+.hero .lede { font-size: clamp(1.02rem, 1.5vw, 1.18rem); max-width: 34em; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.specs { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 34px; }
+.specs b { display: block; font-family: var(--font-mono); font-weight: 500; font-size: 0.95rem; color: var(--ink); }
+@media (max-width: 1180px) and (min-width: 1000px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* slideshow */
+.show { margin: 0; min-width: 0; }
+.stage { position: relative; width: 100%; aspect-ratio: 4 / 4.6; overflow: hidden; background: var(--sheet); border: 1px solid var(--line); touch-action: pan-y; }
+.stage .slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; opacity: 0; transition: opacity .6s ease; }
+.stage .slide.bp { object-fit: contain; background: #FFFFFF; padding: 4%; }
+.stage .slide.on { opacity: 1; }
+.nav-btn {
+  position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; z-index: 2;
+  border: 0; background: var(--ink); color: var(--bg); font-size: 1.1rem; cursor: pointer; opacity: .85;
+}
+.nav-btn:hover { background: var(--blue); opacity: 1; }
+.prev { left: 10px; } .next { right: 10px; }
+.show-cap { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 12px; margin-top: 12px; }
+.show-cap .kind { color: var(--blue); }
+.s-title { font-weight: 600; min-width: 0; }
+.count { font-variant-numeric: tabular-nums; }
+.dots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.dots button { width: 22px; height: 6px; padding: 0; border: 0; background: var(--line); cursor: pointer; }
+.dots button[aria-current="true"] { background: var(--blue); }
+@media (prefers-reduced-motion: reduce) { .stage .slide { transition: none; } }
+
+/* services */
+.svc-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 5vw, 72px); }
+.group > .mono { display: block; margin-bottom: 14px; color: var(--blue); }
+.svc { padding-block: 20px; display: grid; gap: 8px; }
+.svc + .svc { border-top: 1px solid var(--line); }
+.svc p { color: var(--muted); max-width: 34em; }
+.ticks { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.ticks li { padding-left: 18px; position: relative; font-size: 0.97rem; }
+.ticks li::before { content: ""; position: absolute; left: 0; top: 0.75em; width: 8px; height: 1.5px; background: var(--blue); }
+@media (max-width: 820px) { .svc-groups { grid-template-columns: minmax(0, 1fr); } }
+
+/* to-scale plans (decks and yurt bases share one look) */
+.plans { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 3vw, 36px); }
+.plan { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.plan .drawing { background: var(--sheet); border: 1px solid var(--line); }
+.alt .plan .drawing { background: var(--bg); }
+.plan svg { width: 100%; height: auto; display: block; }
+.plan .meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.plan .meta h3 { font-size: 1.05rem; }
+.plan .meta .mono { color: var(--blue); font-variant-numeric: tabular-nums; }
+.plan p { color: var(--muted); font-size: 0.95rem; }
+.scale-note { margin-top: 16px; }
+.plan .price { font-family: var(--font-mono); font-weight: 500; font-size: 1.05rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.plan .price span { font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 400; margin-left: 4px; }
+.plan .alt-price { margin-top: -6px; }
+.order { display: grid; gap: 8px; margin-top: auto; padding-top: 4px; }
+.btn.sm { padding: 10px 12px; font-size: 0.74rem; text-align: center; }
+.plan .dep { font-size: 0.9rem; color: var(--ink); border-left: 2px solid var(--blue); padding-left: 10px; }
+.order-note { margin-top: 18px; max-width: 46em; color: var(--muted); }
+.order-note b { color: var(--ink); font-weight: 600; }
+
+@media (max-width: 1100px) { .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.dim-line { stroke: var(--blue); stroke-width: 0.7; fill: none; }
+.dim-text { fill: var(--blue); font-family: var(--font-mono); font-size: 7px; letter-spacing: 0.04em; }
+.deck-fill { fill: var(--wood); }
+.deck-edge { fill: none; stroke: var(--ink); stroke-width: 1.1; }
+.board { stroke: var(--wood-line); stroke-width: 0.45; }
+.frame-ghost { fill: none; stroke: var(--wood-line); stroke-width: 0.6; stroke-dasharray: 2 1.6; }
+
+/* combiner */
+.combiner { margin-top: clamp(32px, 5vw, 56px); border: 1.5px solid var(--ink); display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+.combiner .rows { padding: 22px; display: grid; gap: 4px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding-block: 8px; }
+.row + .row { border-top: 1px solid var(--line); }
+.row .name { font-family: var(--font-mono); font-size: 0.95rem; }
+.row .name small { color: var(--muted); font-size: 0.78rem; margin-left: 8px; }
+.stepper { display: flex; align-items: center; gap: 4px; }
+.stepper button { width: 40px; height: 40px; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); font-family: var(--font-mono); font-size: 1.15rem; cursor: pointer; line-height: 1; }
+.stepper button:hover { border-color: var(--blue); color: var(--blue); }
+.stepper output { min-width: 34px; text-align: center; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.total { background: var(--ink); color: var(--bg); padding: 22px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.total .mono { color: inherit; opacity: 0.75; }
+.total .big { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 2.8rem); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.total p { font-size: 0.92rem; opacity: 0.85; }
+@media (max-width: 760px) { .combiner { grid-template-columns: minmax(0, 1fr); } }
+
+/* galleries */
+.gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 1.6vw, 18px); }
+.gallery.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.gallery figure { margin: 0; min-width: 0; display: grid; gap: 8px; align-content: start; }
+.gallery figcaption { font-size: 0.92rem; color: var(--muted); line-height: 1.4; }
+.gallery figcaption b { display: block; font-weight: 600; color: var(--ink); }
+.g-item { display: block; width: 100%; padding: 0; border: 1px solid var(--line); background: var(--sheet); cursor: zoom-in; position: relative; overflow: hidden; }
+.g-item img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; transition: transform .35s ease; }
+.g-item:hover img { transform: scale(1.03); }
+.g-item:hover { border-color: var(--blue); }
+.gallery.paper .g-item { background: #FFFFFF; }
+.gallery.paper .g-item img { object-fit: contain; padding: 5%; }
+.gallery.paper .g-item:hover img { transform: none; }
+@media (max-width: 1100px) { .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) { .gallery, .gallery.three { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .g-item img { transition: none; } }
+
+.bp-note { margin-top: clamp(24px, 3.5vw, 40px); display: flex; flex-wrap: wrap; gap: 10px 32px; }
+.bp-note b { display: block; font-family: var(--font-mono); font-weight: 500; font-size: 0.95rem; color: var(--ink); }
+
+/* feature build */
+.feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 64px); align-items: center; }
+.feature .g-item img { aspect-ratio: 4 / 5; object-position: 50% 60%; }
+.feature-copy { display: grid; gap: 14px; }
+.feature-copy p { color: var(--muted); }
+@media (max-width: 760px) { .feature { grid-template-columns: minmax(0, 1fr); } }
+
+/* process */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(16px, 2.4vw, 28px); counter-reset: s; }
+.steps li { counter-increment: s; display: grid; gap: 8px; align-content: start; }
+.steps li::before { content: counter(s); font-family: var(--font-mono); font-size: 0.85rem; width: 30px; height: 30px; display: grid; place-items: center; border: 1.5px solid var(--blue); color: var(--blue); }
+.steps h3 { font-size: 0.95rem; }
+.steps p { color: var(--muted); font-size: 0.95rem; }
+@media (max-width: 1100px) { .steps { grid-template-columns: minmax(0, 1fr); } .steps li { grid-template-columns: 30px minmax(0, 1fr); column-gap: 16px; } .steps li::before { grid-row: span 2; } }
+
+.serve-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px clamp(24px, 5vw, 64px); margin-top: clamp(36px, 5vw, 56px); }
+.serve-grid div { display: grid; gap: 4px; }
+.serve-grid p { color: var(--muted); }
+@media (max-width: 700px) { .serve-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* owner */
+.owner-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
+.owner-photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.owner-photos img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.owner-photos img:nth-child(2) { margin-top: 36px; }
+.owner-copy { display: grid; gap: 16px; }
+.owner-copy > p { color: var(--muted); }
+@media (max-width: 860px) { .owner-grid { grid-template-columns: minmax(0, 1fr); } }
+
+
+/* pricing */
+.price-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(24px, 4vw, 48px); align-items: start; }
+.ptable { width: 100%; border-collapse: collapse; border: 1.5px solid var(--ink); background: var(--sheet); font-variant-numeric: tabular-nums; }
+.ptable caption { text-align: left; font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.02em; padding-bottom: 12px; }
+.ptable th, .ptable td { padding: 12px 14px; text-align: left; border-top: 1px solid var(--line); }
+.ptable thead th { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 500; border-top: 0; }
+.ptable td.amt, .ptable th.amt { text-align: right; }
+.ptable td.amt { font-family: var(--font-mono); font-weight: 500; font-size: 1rem; }
+.ptable tbody th { font-weight: 600; }
+.price-notes { margin-top: clamp(24px, 3.5vw, 36px); display: grid; gap: 14px; }
+.price-notes .ticks { color: var(--muted); }
+@media (max-width: 860px) { .price-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* footer / title block */
+footer { background: var(--bg); padding-block: clamp(48px, 7vw, 88px) calc(40px + env(safe-area-inset-bottom, 0px)); }
+.foot-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
+.foot-logo { width: 100%; max-width: 460px; }
+.tblock { border: 1.5px solid var(--ink); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tblock div { padding: 14px 16px; min-width: 0; overflow-wrap: anywhere; }
+.tblock div:nth-child(n+3) { border-top: 1px solid var(--line); }
+.tblock div:nth-child(even) { border-left: 1px solid var(--line); }
+.tblock .full { grid-column: 1 / -1; border-left: 0 !important; }
+.tblock b { display: block; font-weight: 500; margin-top: 2px; }
+.tblock .soon { color: var(--muted); font-weight: 400; }
+.fine { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+@media (max-width: 860px) { .foot-grid { grid-template-columns: minmax(0, 1fr); } }
+
+
+/* quote buttons */
+.sec-cta { margin-top: clamp(32px, 4.5vw, 52px); padding-top: 24px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; }
+.sec-cta p { max-width: 40em; color: var(--muted); }
+.btn.light { background: var(--bg); color: var(--ink); border-color: var(--bg); margin-top: 12px; text-align: center; }
+.btn.light:hover { background: var(--blue); border-color: var(--blue); color: var(--bg); }
+.contact-line { display: grid; gap: 2px; }
+.contact-line a { text-decoration: none; }
+.contact-line a:hover { text-decoration: underline; }
+
+/* quote page */
+.quote-view { margin-left: var(--side-w); }
+@media (max-width: 999px) { .quote-view { margin-left: 0; } }
+.quote-view section { padding-top: clamp(28px, 5vw, 56px); }
+.back { display: inline-block; margin-bottom: 18px; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--blue); }
+.q-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 48px); align-items: start; }
+@media (max-width: 900px) { .q-grid { grid-template-columns: minmax(0, 1fr); } }
+.q-form { display: grid; gap: 18px; background: var(--sheet); border: 1.5px solid var(--ink); padding: clamp(18px, 3vw, 28px); }
+.q-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 560px) { .q-row { grid-template-columns: minmax(0, 1fr); } }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.field label i { font-style: normal; color: var(--blue); }
+.field input, .field select, .field textarea {
+  width: 100%; font: inherit; font-size: 1rem; color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 0; padding: 11px 12px;
+}
+.field textarea { min-height: 110px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--blue); outline-offset: 0; border-color: var(--blue); }
+.q-err { color: #B3261E; font-size: 0.95rem; }
+.q-hint { font-size: 0.85rem; color: var(--muted); }
+.q-side { display: grid; gap: 18px; position: sticky; top: calc(20px + env(safe-area-inset-top, 0px)); }
+@media (max-width: 999px) { .q-side { position: static; } }
+.est { background: var(--ink); color: var(--bg); padding: 22px; display: grid; gap: 6px; }
+.est .mono { color: inherit; opacity: 0.75; }
+.est .big { font-family: var(--font-display); font-size: clamp(1.8rem, 4.5vw, 2.6rem); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.est p { font-size: 0.92rem; opacity: 0.85; white-space: pre-line; }
+.reach { border: 1px solid var(--line); background: var(--sheet); padding: 18px 20px; display: grid; gap: 12px; }
+.reach .val { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.reach b { font-family: var(--font-mono); font-weight: 500; font-size: 1rem; overflow-wrap: anywhere; user-select: all; }
+.mini { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; background: transparent; color: var(--ink); border: 1px solid var(--line); padding: 6px 10px; cursor: pointer; }
+.mini:hover { border-color: var(--blue); color: var(--blue); }
+.q-done { display: grid; gap: 14px; background: var(--sheet); border: 1.5px solid var(--blue); padding: clamp(18px, 3vw, 28px); }
+.q-done pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--font-mono); font-size: 0.86rem; background: var(--bg); border: 1px solid var(--line); padding: 14px; max-height: 340px; overflow: auto; }
+.q-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.q-actions .btn { cursor: pointer; }
+button.btn { background: transparent; font: inherit; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; }
+button.btn.solid { background: var(--ink); }
+.q-status { color: var(--muted); font-size: 0.95rem; }
+
+/* lightbox */
+.lb[hidden], [hidden] { display: none !important; }
+.lb {
+  position: fixed; inset: 0; z-index: 90; background: rgba(6, 9, 13, 0.94); color: #E8EDF1;
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 10px;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.lb-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.lb-bar .mono { color: #A9B4BE; }
+.lb-close, .lb-nav {
+  font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+  background: #FFFFFF; color: #12161B; border: 0; padding: 10px 16px; cursor: pointer;
+}
+.lb-body { min-height: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.lb-img { min-height: 0; height: 100%; display: grid; place-items: center; }
+.lb-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.lb-img img.paper { background: #FFFFFF; }
+.lb-cap { text-align: center; font-size: 0.95rem; }
+@media (max-width: 600px) {
+  .lb-body { grid-template-columns: minmax(0, 1fr); }
+  .lb-body .lb-nav { display: none; }
+}
+</style>
+
+<!-- mobile bar -->
+<div class="topbar">
+  <a class="side-brand" href="#home" aria-label="Koure Forms, back to top">
+    <img src="img/mark-light.png" alt="" width="160" height="146">
+    <span>KOURE FORMS</span>
+  </a>
+  <button type="button" class="menu-btn" id="menu-btn" aria-controls="side" aria-expanded="false"><i></i>Menu</button>
+</div>
+
+<!-- sidebar menu -->
+<aside class="side" id="side" aria-label="Site menu">
+  <button type="button" class="close-side" id="close-side">Close menu</button>
+  <a class="side-brand" href="#home">
+    <img src="img/mark-light.png" alt="" width="160" height="146">
+    <span>KOURE<br>FORMS</span>
+  </a>
+  <nav id="side-nav">
+    <a href="#home"><span class="n">01</span>Home</a>
+    <a href="#services"><span class="n">02</span>What we do</a>
+    <a href="#decks"><span class="n">03</span>Deck sizes</a>
+    <a href="#yurt"><span class="n">04</span>Yurt platforms</a>
+    <a href="#blueprints"><span class="n">05</span>DIY blueprints</a>
+    <a href="#builds"><span class="n">06</span>Custom crafts</a>
+    <a href="#process"><span class="n">07</span>How we work</a>
+    <a href="#about"><span class="n">08</span>About the company</a>
+    <a href="#pricing"><span class="n">09</span>Pricing</a>
+    <a href="#contact"><span class="n">10</span>Contact</a>
+  </nav>
+  <div class="side-foot">
+    <div><span class="mono">Service area</span><b>Hickory / Charlotte, NC</b></div>
+    <div><span class="mono">Starting prices</span><b>Decks from $599<br>Yurt bases from $3,295</b></div>
+    <div class="contact-line"><span class="mono">Call or text</span><b><a href="tel:+18282708000">828-270-8000</a></b></div>
+    <div class="contact-line"><span class="mono">Email</span><b style="overflow-wrap:anywhere"><a href="mailto:Koureforms@gmail.com">Koureforms@gmail.com</a></b></div>
+    <a class="side-cta" href="#quote" data-quote="general">Request a quote</a>
+  </div>
+</aside>
+
+<main>
+  <!-- HOME -->
+  <section class="hero" id="home">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="mono">Structural design &middot; 3D visualization &middot; creative crafts</span>
+        <h1>Where vision takes form.</h1>
+        <p class="lede">Koure Forms designs DIY blueprints and 3D models for architectural and structural homes, and crafts decks, yurt platforms and event structures by hand. The plans come from someone who crafts, so they work on the jobsite as well as on screen.</p>
+        <div class="actions">
+          <a class="btn solid" href="#yurt">Yurt platforms</a>
+          <a class="btn" href="#decks">Decks</a>
+          <a class="btn" href="#blueprints">DIY blueprints</a>
+          <a class="btn" href="#pricing">Pricing</a>
+        </div>
+        <div class="specs">
+          <div><span class="mono">Decks &middot; 4'&times;5' to 5'&times;10'</span><b>From $599</b></div>
+          <div><span class="mono">Yurt bases &middot; 16' to 30'</span><b>From $3,295</b></div>
+          <div><span class="mono">Plans</span><b>Blueprints + 3D</b></div>
+        </div>
+      </div>
+
+      <figure class="show" id="show" aria-roledescription="carousel" aria-label="Crafts and blueprints">
+        <div class="stage" id="stage">
+          <img class="slide on" src="img/honeycomb-hero.jpg" alt="Honeycomb-style wooden pavilion with translucent panels over a full stage deck" data-kind="Craft" data-title="Honeycomb pavilion and stage">
+          <img class="slide bp" data-src="img/bp-frame.jpg" alt="3D render of a 12-sided round platform frame" data-kind="Blueprint" data-title="Round platform frame, 3D view" aria-hidden="true">
+          <img class="slide" data-src="img/yurt-4-tent.jpg" alt="Canvas yurt standing on a round wooden platform" data-kind="Craft" data-title="Yurt on a finished round base" aria-hidden="true">
+          <img class="slide bp" data-src="img/bp-sections.jpg" alt="Blueprint section map, sections A1 to A5 and B1 to B5" data-kind="Blueprint" data-title="Section map, A1 to B5" aria-hidden="true">
+          <img class="slide" data-src="img/yurt-1-frame.jpg" alt="Round platform frame assembled on grass" data-kind="Craft" data-title="Round platform frame on site" aria-hidden="true">
+          <img class="slide bp" data-src="img/bp-lagbolts.jpg" alt="Blueprint step joining B4 to B3 with three lag bolts" data-kind="Blueprint" data-title="Assembly step: B4 into B3" aria-hidden="true">
+          <img class="slide" data-src="img/yurt-3-decked.jpg" alt="Finished round wooden deck at an outdoor event" data-kind="Craft" data-title="Finished round deck" aria-hidden="true">
+          <img class="slide bp" data-src="img/bp-boards.jpg" alt="Blueprint top view with 34 numbered deck boards" data-kind="Blueprint" data-title="Board layout, 34 boards" aria-hidden="true">
+          <img class="slide" data-src="img/deck-platform.jpg" alt="Large modular deck platform on grass" data-kind="Craft" data-title="Modular deck platform" aria-hidden="true">
+          <img class="slide bp" data-src="img/bp-boards-frame.jpg" alt="Blueprint top view with the frame under the boards" data-kind="Blueprint" data-title="Boards over the frame" aria-hidden="true">
+          <img class="slide" data-src="img/circular-deck.jpg" alt="Large circular deck platform on an open field at dusk" data-kind="Craft" data-title="Circular event deck" aria-hidden="true">
+          <img class="slide bp" data-src="img/bp-b4.jpg" alt="Blueprint of frame section B4" data-kind="Blueprint" data-title="Section B4 detail" aria-hidden="true">
+          <button type="button" class="nav-btn prev" id="prev" aria-label="Previous slide">&larr;</button>
+          <button type="button" class="nav-btn next" id="next" aria-label="Next slide">&rarr;</button>
+        </div>
+        <figcaption class="show-cap">
+          <span class="kind mono" id="s-kind">Craft</span>
+          <span class="s-title" id="s-title" aria-live="polite">Honeycomb pavilion and stage</span>
+          <span class="count mono" id="s-count">1 / 12</span>
+        </figcaption>
+        <div class="dots" id="dots"></div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="alt">
+    <div class="wrap">
+      <div class="head">
+        <h2>What we do</h2>
+        <p>Koure Forms works at both ends of a project. On screen, we draw the plan and model it in 3D. On site, we craft it. Buy the plans and craft it yourself, or have us craft it.</p>
+      </div>
+      <div class="svc-groups">
+        <div class="group">
+          <span class="mono">On screen</span>
+          <div class="svc">
+            <h3>DIY Blueprints</h3>
+            <p>Clear, buildable plans for homeowners, builders and makers who want to do the work themselves.</p>
+            <ul class="ticks"><li>Step-by-step structural plans</li><li>Material lists and cut lists</li><li>Plans written for real builders, not just engineers</li></ul>
+          </div>
+          <div class="svc">
+            <h3>3D Design &amp; Visualization</h3>
+            <p>See a structure before a single board is cut.</p>
+            <ul class="ticks"><li>3D models of homes and structural designs</li><li>Walk-around views to check layout, proportions and look</li><li>Revisions before construction, when changes cost the least</li></ul>
+          </div>
+          <div class="svc">
+            <h3>Structural Home Design</h3>
+            <p>Architectural concepts for homes with a strong structural focus, designed to stand up as well as look good.</p>
+          </div>
+        </div>
+        <div class="group">
+          <span class="mono">On site</span>
+          <div class="svc">
+            <h3>Deck &amp; Platform Crafts</h3>
+            <p>Solid, level decks in four standard sizes from 4'&times;5' to 5'&times;10'. Sections join into larger decks, stages and event platforms.</p>
+          </div>
+          <div class="svc">
+            <h3>Yurt Platforms</h3>
+            <p>Round bases from 16' to 30' across for yurts and bell tents, crafted from labeled frame sections that bolt together on site.</p>
+          </div>
+          <div class="svc">
+            <h3>Creative &amp; Custom Crafts</h3>
+            <p>Large event structures, such as a geometric honeycomb pavilion with a full stage deck.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DECKS -->
+  <section id="decks">
+    <div class="wrap">
+      <div class="head">
+        <h2>Deck sizes</h2>
+        <p>Four rectangular footprints, drawn to the same scale. Join them edge to edge to make a larger deck, a stage or an event platform.</p>
+      </div>
+      <div class="plans" id="deck-plans"></div>
+      <p class="order-note" id="deck-order-note"></p>
+
+      <div class="combiner" aria-labelledby="comb-title">
+        <div class="rows">
+          <h3 id="comb-title">Combine sections</h3>
+          <p class="mono" style="margin-bottom:8px">Example: two 5' &times; 10' sections</p>
+          <div id="rows"></div>
+        </div>
+        <div class="total">
+          <span class="mono">Estimated price</span>
+          <span class="big" id="total">$2,158</span>
+          <p id="total-note">2 sections &middot; 100 sq ft</p>
+          <p>Before delivery and setup.</p>
+          <a class="btn light" href="#quote" data-quote="deck">Send quote</a>
+        </div>
+      </div>
+
+      <div class="sub"><h3>Deck gallery</h3><span class="mono">Tap a photo to enlarge</span></div>
+      <div class="gallery three" data-gallery="Deck gallery">
+        <figure><button type="button" class="g-item"><img src="img/deck-platform.jpg" alt="Large modular deck platform with the seams between sections visible" width="900" height="1200"></button><figcaption><b>Modular platform</b>Sections joined edge to edge into one large deck.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/deck-corner.jpg" alt="Deck corner with a rounded edge and screwed rim board" width="900" height="1200"></button><figcaption><b>Corner detail</b>Rounded edge and screwed rim board.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/deck-grain.jpg" alt="Treated pine decking boards up close" width="900" height="1200"></button><figcaption><b>Surface</b>Treated pine decking, up close.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- YURT -->
+  <section id="yurt" class="alt">
+    <div class="wrap">
+      <div class="head">
+        <h2>Yurt platforms</h2>
+        <p>Round bases for yurts and bell tents, from 16' to 30' across. Each one is drawn below to the same scale, so you can compare sizes the same way as the decks. The frame is crafted in labeled sections that bolt together on site, then decked and cut round.</p>
+      </div>
+      <div class="plans" id="yurt-plans"></div>
+      <p class="order-note" id="yurt-order-note"></p>
+      <p class="mono scale-note">Yurt bases are drawn to one shared scale. Dashed line shows the 12-sided frame under the decking.</p>
+
+      <div class="sub"><h3>Yurt gallery</h3><span class="mono">8 photos &middot; tap to enlarge</span></div>
+      <div class="gallery" data-gallery="Yurt gallery">
+        <figure><button type="button" class="g-item"><img src="img/yurt-1-frame.jpg" alt="Round platform frame assembled on grass, seen from the front" width="900" height="678"></button><figcaption><b>Frame, front view</b>Sections bolted into a 12-sided frame.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/yurt-frame-a.jpg" alt="Round platform frame on grass with tents behind" width="900" height="1193"></button><figcaption><b>Frame layout</b>Joists and blocking laid out on site.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/yurt-frame-b.jpg" alt="Round platform frame seen at an angle" width="900" height="678"></button><figcaption><b>Frame, side angle</b>Rim boards follow the 12 sides.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/yurt-frame-c.jpg" alt="Round platform frame on a grass field with bunting behind" width="900" height="1193"></button><figcaption><b>Frame, full view</b>Ready for subfloor.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/yurt-2-subfloor.jpg" alt="Round platform with subfloor sheets cut to a circle" width="900" height="678"></button><figcaption><b>Subfloor</b>Sheets down and cut to a circle.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/yurt-3-decked.jpg" alt="Finished round wooden deck at an outdoor event" width="900" height="678"></button><figcaption><b>Decked</b>Boards installed and trimmed round.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/circular-deck.jpg" alt="Owner standing on a finished round deck platform at dusk" width="900" height="1200"></button><figcaption><b>Finished base</b>Ready for the tent to go up.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/yurt-4-tent.jpg" alt="Canvas yurt standing on the finished round platform" width="900" height="1200"></button><figcaption><b>Yurt installed</b>A level, dry base under the tent.</figcaption></figure>
+      </div>
+      <div class="sec-cta">
+        <p>Pick a size and top on the quote page to see your estimate. Yurt bases start at $3,295.</p>
+        <a class="btn solid" href="#quote" data-quote="yurt">Request a quote</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLUEPRINTS -->
+  <section id="blueprints">
+    <div class="wrap">
+      <div class="head">
+        <h2>DIY blueprints</h2>
+        <p>This is what a Koure Forms blueprint looks like. These pages come from the round yurt platform plan. Plans for other platform shapes and sizes use the same format: a 3D view, labeled sections, step-by-step assembly and a numbered board layout.</p>
+      </div>
+      <div class="gallery three paper" data-gallery="DIY blueprint">
+        <figure><button type="button" class="g-item"><img src="img/bp-frame.jpg" alt="Full round platform frame, rendered in 3D" width="1400" height="933"></button><figcaption><b>Full frame</b>The complete 12-sided frame in 3D, before decking.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/bp-sections.jpg" alt="Section map showing frame sections A1 to A5 and B1 to B5" width="1400" height="1400"></button><figcaption><b>Section map</b>Ten labeled sections, A1&ndash;A5 and B1&ndash;B5, and where each one joins.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/bp-lagbolts.jpg" alt="Assembly step joining B4 to B3 with three lag bolts" width="1400" height="1400"></button><figcaption><b>Assembly step</b>Join B4 to B3 with 3 lag bolts. Every connection gets its own step.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/bp-b4.jpg" alt="Single frame section B4 with joists and blocking" width="1100" height="1100"></button><figcaption><b>Section detail</b>One section on its own, with every joist and block shown.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/bp-boards.jpg" alt="Top view of the decking with all 34 boards numbered" width="1254" height="1254"></button><figcaption><b>Board layout</b>All 34 boards numbered. Boards 16&ndash;22 split in the middle.</figcaption></figure>
+        <figure><button type="button" class="g-item"><img src="img/bp-boards-frame.jpg" alt="Top view with the frame shown under the boards and split boards labeled C16 to D22" width="1296" height="1213"></button><figcaption><b>Boards over frame</b>Split boards labeled C16&ndash;C22 and D16&ndash;D22.</figcaption></figure>
+      </div>
+      <div class="bp-note">
+        <div><span class="mono">Frame</span><b>10 labeled sections</b></div>
+        <div><span class="mono">Decking</span><b>34 boards, numbered</b></div>
+        <div><span class="mono">Joints</span><b>Lag-bolted sections</b></div>
+        <div><span class="mono">Finish</span><b>Cut round after install</b></div>
+      </div>
+      <div class="sec-cta">
+        <p>Want a DIY blueprint for your own platform, deck or structure? Tell us what you want to build and we'll quote the plan set.</p>
+        <a class="btn solid" href="#quote" data-quote="blueprint">Request a quote</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUSTOM BUILDS -->
+  <section id="builds" class="alt">
+    <div class="wrap">
+      <div class="head">
+        <h2>Custom crafts</h2>
+        <p>One-off structures for events, designed and crafted from scratch.</p>
+      </div>
+      <div class="feature">
+        <div class="gallery" data-gallery="Custom builds" style="display:block">
+          <figure><button type="button" class="g-item"><img src="img/honeycomb-work.jpg" alt="Honeycomb pavilion with a wood frame and translucent panels over a full stage deck" width="760" height="1013"></button></figure>
+        </div>
+        <div class="feature-copy">
+          <span class="mono">Creative craft</span>
+          <h3 style="font-size:1.3rem">Honeycomb pavilion and stage</h3>
+          <p>A geometric honeycomb-style pavilion with a wood frame and translucent panels, set over a full stage deck.</p>
+          <a class="btn" href="#quote" data-quote="custom" style="justify-self:start">Ask about a custom craft</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process">
+    <div class="wrap">
+      <div class="head">
+        <h2>How we work</h2>
+        <p>Every project follows the same five steps, whether you want plans or a finished craft.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Vision</h3><p>Talk through what you want to craft and where.</p></li>
+        <li><h3>Design</h3><p>Create the blueprint and the 3D model.</p></li>
+        <li><h3>Review</h3><p>Walk through the design together and make revisions.</p></li>
+        <li><h3>Craft or hand off</h3><p>We craft it, or deliver DIY-ready plans.</p></li>
+        <li><h3>Finish</h3><p>Final walkthrough and photos for the portfolio.</p></li>
+      </ol>
+      <div class="serve-grid">
+        <div><h3>DIY homeowners</h3><p>Professional plans you can craft yourself.</p></div>
+        <div><h3>Homeowners</h3><p>A deck or platform crafted for you.</p></div>
+        <div><h3>Event organizers</h3><p>Yurt bases, stages and feature structures.</p></div>
+        <div><h3>Builders and contractors</h3><p>Design and 3D visualization support.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OWNER -->
+  <section id="about" class="alt">
+    <div class="wrap owner-grid">
+      <div class="owner-photos">
+        <img src="img/owner-lumber.jpg" alt="The owner sitting on stacked treated lumber in a lumber warehouse" width="820" height="1093">
+        <img src="img/owner-tractor.jpg" alt="The owner sitting on a red tractor with a front loader" width="820" height="1130">
+      </div>
+      <div class="owner-copy">
+        <span class="mono">Koure Forms</span>
+        <h2>About the company</h2>
+        <p>Koure Forms is founder-led and hands-on. The owner brings field experience to every design: framing decks, crafting yurt platforms and large outdoor event structures, working with lumber in the warehouse and operating heavy equipment. That jobsite experience is why Koure Forms plans are buildable.</p>
+        <ul class="ticks">
+          <li><b>Designer and builder in one.</b> The person drawing the plan knows how it gets crafted.</li>
+          <li><b>See it before you craft it.</b> 3D designs reduce surprises and wasted material.</li>
+          <li><b>Crafted to last.</b> Structural thinking comes first.</li>
+          <li><b>Flexible.</b> Buy the plans and DIY, or have us craft it.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="wrap">
+      <div class="head">
+        <h2>Pricing</h2>
+        <p>Standard prices for the Hickory / Charlotte, NC area. Prices include materials and crafting the deck or platform.</p>
+      </div>
+      <div class="price-grid">
+        <table class="ptable">
+          <caption>Decks</caption>
+          <thead><tr><th scope="col">Size</th><th scope="col" class="amt">Price</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">4' &times; 5'</th><td class="amt">$599</td></tr>
+            <tr><th scope="row">5' &times; 5'</th><td class="amt">$669</td></tr>
+            <tr><th scope="row">4' &times; 10'</th><td class="amt">$929</td></tr>
+            <tr><th scope="row">5' &times; 10'</th><td class="amt">$1,079</td></tr>
+          </tbody>
+        </table>
+        <table class="ptable">
+          <caption>Yurt platforms</caption>
+          <thead><tr><th scope="col">Size</th><th scope="col" class="amt">OSB top</th><th scope="col" class="amt">Deck boards</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">16' round</th><td class="amt">$3,295</td><td class="amt">$4,195</td></tr>
+            <tr><th scope="row">20' round</th><td class="amt">$4,895</td><td class="amt">$6,295</td></tr>
+            <tr><th scope="row">24' round</th><td class="amt">$6,795</td><td class="amt">$8,795</td></tr>
+            <tr><th scope="row">30' round</th><td class="amt">$10,395</td><td class="amt">$13,495</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="price-notes">
+        <ul class="ticks">
+          <li>Delivery, setup and site leveling are quoted separately based on location.</li>
+          <li>Ordering several decks or platforms together? Ask about a multi-section discount.</li>
+          <li>Custom sizes, stain or sealer, and raised platforms are priced by quote.</li>
+        </ul>
+        <a class="btn solid" href="#quote" data-quote="general" style="justify-self:start">Request a quote</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<div class="quote-view" id="quote" hidden>
+  <section>
+    <div class="wrap">
+      <a class="back" href="#home">&larr; Back to the site</a>
+      <div class="head">
+        <h2 id="q-title" tabindex="-1">Request a quote</h2>
+        <p>Fill this out and we'll get back to you with a final price. Fields marked * are required. You'll send the finished request to us by email or text in the last step.</p>
+      </div>
+      <div class="q-grid">
+        <div>
+          <form class="q-form" id="q-form" novalidate>
+            <div class="q-row">
+              <div class="field"><label for="q-name">Name <i>*</i></label><input id="q-name" name="name" autocomplete="name" required></div>
+              <div class="field"><label for="q-phone">Phone <i>*</i></label><input id="q-phone" name="phone" type="tel" autocomplete="tel" required></div>
+            </div>
+            <div class="q-row">
+              <div class="field"><label for="q-email">Email</label><input id="q-email" name="email" type="email" autocomplete="email"></div>
+              <div class="field"><label for="q-where">Project location (city / county)</label><input id="q-where" name="where" placeholder="e.g. Hickory, Catawba County"></div>
+            </div>
+            <div class="field">
+              <label for="q-type">What do you need? <i>*</i></label>
+              <select id="q-type" name="type">
+                <option value="deck">Deck</option>
+                <option value="yurt">Yurt platform</option>
+                <option value="blueprint">DIY blueprint</option>
+                <option value="custom">Custom craft</option>
+                <option value="general">Not sure yet / other</option>
+              </select>
+            </div>
+            <div class="field" id="g-deck">
+              <label for="q-deck">Deck sections</label>
+              <textarea id="q-deck" name="deck" rows="4"></textarea>
+            </div>
+            <div class="q-row" id="g-yurt" hidden>
+              <div class="field"><label for="q-ysize">Platform size</label>
+                <select id="q-ysize" name="ysize"><option value="0">16' round</option><option value="1">20' round</option><option value="2">24' round</option><option value="3">30' round</option></select></div>
+              <div class="field"><label for="q-ytop">Top</label>
+                <select id="q-ytop" name="ytop"><option value="osb">OSB subfloor</option><option value="boards">Finished deck boards</option></select></div>
+            </div>
+            <div class="field" id="g-plan" hidden>
+              <label for="q-plan">What should the plan be for?</label>
+              <input id="q-plan" name="plan" placeholder="e.g. 20' yurt platform, 8' x 12' deck">
+            </div>
+            <div class="q-row">
+              <div class="field"><label for="q-date" id="q-date-label">Date needed by</label><input id="q-date" name="date" type="date"><span class="q-hint" id="q-date-hint">Earliest date is 3 days from today, so we have time to craft your order.</span></div>
+              <div class="field"><label for="q-delivery">Delivery and setup?</label>
+                <select id="q-delivery" name="delivery"><option>Yes, deliver and set up</option><option>No, I'll pick it up</option><option>Not sure</option></select></div>
+            </div>
+            <div class="field">
+              <label for="q-notes">Anything else we should know?</label>
+              <textarea id="q-notes" name="notes" rows="4" placeholder="Ground conditions, event details, stain or sealer, custom size..."></textarea>
+            </div>
+            <p class="q-err" id="q-err" hidden></p>
+            <button type="submit" class="btn solid" id="q-submit" style="justify-self:start;cursor:pointer">Review my request</button>
+          </form>
+
+          <div class="q-done" id="q-done" hidden>
+            <h3>Your request is ready to send</h3>
+            <p class="q-status">Send it to Koure Forms with one of these buttons. If your email or text app doesn't open, copy the request and send it to the phone number or email shown.</p>
+            <pre id="q-text"></pre>
+            <div class="q-actions">
+              <a class="btn solid" id="q-mail" href="#quote">Email it</a>
+              <a class="btn" id="q-sms" href="#quote">Text it</a>
+              <button type="button" class="btn" id="q-copy">Copy request</button>
+              <button type="button" class="btn" id="q-edit">Edit</button>
+            </div>
+            <p class="q-status" id="q-copied" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <aside class="q-side">
+          <div class="est">
+            <span class="mono">Estimated price</span>
+            <span class="big" id="q-est">$0</span>
+            <p id="q-est-note"></p>
+          </div>
+          <div class="reach">
+            <span class="mono">Or reach us directly</span>
+            <div class="val"><b id="q-phone-text">828-270-8000</b><button type="button" class="mini" data-copy="828-270-8000">Copy</button></div>
+            <div class="val"><b id="q-mail-text">Koureforms@gmail.com</b><button type="button" class="mini" data-copy="Koureforms@gmail.com">Copy</button></div>
+            <span class="mono">Hickory / Charlotte, NC</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <img class="foot-logo only-light" src="img/logo-dark.png" alt="Koure Forms. Structural design, 3D visualization, creative crafts. Where vision takes form." width="1000" height="547">
+        <img class="foot-logo only-dark" src="img/logo-light.png" alt="Koure Forms. Structural design, 3D visualization, creative crafts. Where vision takes form." width="1000" height="547">
+      </div>
+      <div class="tblock">
+        <div class="full"><span class="mono">Company</span><b>Koure Forms</b></div>
+        <div><span class="mono">Service area</span><b>Hickory / Charlotte, NC</b></div>
+        <div><span class="mono">Services</span><b>Plans, 3D, decks, yurt bases</b></div>
+        <div class="contact-line"><span class="mono">Phone</span><b><a href="tel:+18282708000">828-270-8000</a></b></div>
+        <div class="contact-line"><span class="mono">Email</span><b><a href="mailto:Koureforms@gmail.com">Koureforms@gmail.com</a></b></div>
+        <div class="full"><span class="mono">Quotes</span><b><a href="#quote" data-quote="general">Request a quote online &rarr;</a></b></div>
+      </div>
+    </div>
+    <div class="fine mono"><span>Koure Forms</span><span>Where vision takes form.</span></div>
+  </div>
+</footer>
+
+<div class="lb" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Enlarged photo">
+  <div class="lb-bar"><span class="mono" id="lb-count"></span><button type="button" class="lb-close" id="lb-close">Close</button></div>
+  <div class="lb-body">
+    <button type="button" class="lb-nav" id="lb-prev" aria-label="Previous photo">&larr;</button>
+    <div class="lb-img" id="lb-stage"><img id="lb-img" alt=""></div>
+    <button type="button" class="lb-nav" id="lb-next" aria-label="Next photo">&rarr;</button>
+  </div>
+  <p class="lb-cap" id="lb-cap"></p>
+</div>
+
+<script>
+(function () {
+  /* ---------- to-scale drawings ---------- */
+  var DECKS = [
+    { d: 4, l: 5, price: 599, use: "Landings, entry steps, small pads" },
+    { d: 5, l: 5, price: 669, use: "Grill pads, small sitting areas" },
+    { d: 4, l: 10, price: 929, use: "Walkways, narrow porches, modular sections" },
+    { d: 5, l: 10, price: 1079, use: "Patios, modular stage and event sections" }
+  ];
+  var YURTS = [
+    { ft: 16, osb: 3295, boards: 4195, use: "Small yurts and bell tents" },
+    { ft: 20, osb: 4895, boards: 6295, use: "Family-size yurts and glamping tents" },
+    { ft: 24, osb: 6795, boards: 8795, use: "Large yurts and small event tents" },
+    { ft: 30, osb: 10395, boards: 13495, use: "Event yurts, stages and gathering space" }
+  ];
+  function money(n) { return "$" + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  var VW = 220, VH = 220;
+
+  function deckSVG(sz) {
+    var S = 18, W = sz.l * S, H = sz.d * S, X0 = (VW - W) / 2 + 8, Y0 = (VH - H) / 2 + 6, lines = "";
+    var step = 0.458 * S;
+    for (var y = step; y < H - 0.5; y += step) lines += '<line class="board" x1="' + X0 + '" x2="' + (X0 + W) + '" y1="' + (Y0 + y).toFixed(2) + '" y2="' + (Y0 + y).toFixed(2) + '"/>';
+    return '<svg viewBox="0 0 ' + VW + ' ' + VH + '" role="img" aria-label="Plan view of a ' + sz.d + ' by ' + sz.l + ' foot deck, drawn to scale">' +
+      '<rect class="deck-fill" x="' + X0 + '" y="' + Y0 + '" width="' + W + '" height="' + H + '"/>' + lines +
+      '<rect class="deck-edge" x="' + X0 + '" y="' + Y0 + '" width="' + W + '" height="' + H + '"/>' +
+      '<path class="dim-line" d="M' + X0 + ' ' + (Y0 - 14) + 'H' + (X0 + W) + 'M' + X0 + ' ' + (Y0 - 18) + 'V' + (Y0 - 10) + 'M' + (X0 + W) + ' ' + (Y0 - 18) + 'V' + (Y0 - 10) + '"/>' +
+      '<text class="dim-text" x="' + (X0 + W / 2) + '" y="' + (Y0 - 18) + '" text-anchor="middle">' + sz.l + "'-0\"</text>" +
+      '<path class="dim-line" d="M' + (X0 - 14) + ' ' + Y0 + 'V' + (Y0 + H) + 'M' + (X0 - 18) + ' ' + Y0 + 'H' + (X0 - 10) + 'M' + (X0 - 18) + ' ' + (Y0 + H) + 'H' + (X0 - 10) + '"/>' +
+      '<text class="dim-text" transform="translate(' + (X0 - 20) + ' ' + (Y0 + H / 2) + ') rotate(-90)" text-anchor="middle">' + sz.d + "'-0\"</text>" +
+      '</svg>';
+  }
+
+  function yurtSVG(sz, idx) {
+    var S = 5.6, R = sz.ft * S / 2, cx = VW / 2, cy = VH / 2 + 8, id = "clip" + idx, lines = "", poly = [];
+    var step = 0.458 * S;
+    for (var y = cy - R + step; y < cy + R - 0.3; y += step) lines += '<line class="board" x1="' + (cx - R) + '" x2="' + (cx + R) + '" y1="' + y.toFixed(2) + '" y2="' + y.toFixed(2) + '"/>';
+    var Rf = R * 0.94;
+    for (var k = 0; k < 12; k++) { var a = (k * 30 + 15) * Math.PI / 180; poly.push((cx + Rf * Math.cos(a)).toFixed(2) + "," + (cy + Rf * Math.sin(a)).toFixed(2)); }
+    var top = cy - R - 14;
+    return '<svg viewBox="0 0 ' + VW + ' ' + VH + '" role="img" aria-label="Plan view of a ' + sz.ft + ' foot round yurt platform, drawn to scale">' +
+      '<defs><clipPath id="' + id + '"><circle cx="' + cx + '" cy="' + cy + '" r="' + R + '"/></clipPath></defs>' +
+      '<circle class="deck-fill" cx="' + cx + '" cy="' + cy + '" r="' + R + '"/>' +
+      '<g clip-path="url(#' + id + ')">' + lines + '</g>' +
+      '<polygon class="frame-ghost" points="' + poly.join(" ") + '"/>' +
+      '<circle class="deck-edge" cx="' + cx + '" cy="' + cy + '" r="' + R + '"/>' +
+      '<path class="dim-line" d="M' + (cx - R) + ' ' + top + 'H' + (cx + R) + 'M' + (cx - R) + ' ' + (top - 4) + 'V' + (cy - 2) + 'M' + (cx + R) + ' ' + (top - 4) + 'V' + (cy - 2) + '" stroke-dasharray="0"/>' +
+      '<text class="dim-text" x="' + cx + '" y="' + (top - 5) + '" text-anchor="middle">' + sz.ft + "'-0\" DIA.</text>" +
+      '</svg>';
+  }
+
+  /* Stripe payment links: paste each link here once created. Empty = button opens the quote page instead. */
+  var PAY = {
+    deck: ["", "", "", ""],
+    yurt: [{ osb: "", boards: "" }, { osb: "", boards: "" }, { osb: "", boards: "" }, { osb: "", boards: "" }]
+  };
+  function deposit(n) { return Math.ceil(n / 2); }
+  function payBtn(url, cls, label, quoteAttrs) {
+    return url
+      ? '<a class="' + cls + '" href="' + url + '" target="_blank" rel="noopener">' + label + '</a>'
+      : '<a class="' + cls + '" href="#quote" ' + quoteAttrs + '>' + label + '</a>';
+  }
+
+  var dp = document.getElementById("deck-plans"), h = "";
+  DECKS.forEach(function (sz, i) {
+    var name = sz.d + "' × " + sz.l + "'";
+    h += '<div class="plan"><div class="drawing">' + deckSVG(sz) + '</div><div class="meta"><h3>' + name + "</h3><span class=\"mono\">" + (sz.d * sz.l) + ' sq ft</span></div><p class="price">' + money(sz.price) + '</p><p>' + sz.use + '</p>' +
+      '<div class="order">' +
+        payBtn(PAY.deck[i], "btn solid sm", "Order – pickup", 'data-quote="deck-order" data-i="' + i + '" data-mode="pickup"') +
+        '<a class="btn sm" href="#quote" data-quote="deck-order" data-i="' + i + '" data-mode="delivery">Order – delivery</a>' +
+      '</div></div>';
+  });
+  dp.innerHTML = h;
+  var deckLinks = PAY.deck.some(Boolean);
+  document.getElementById("deck-order-note").innerHTML = deckLinks
+    ? "<b>Pickup:</b> pay the full price online, then pick up your deck. <b>Delivery:</b> send your order and we'll add delivery and setup to your final invoice. <b>Lead time:</b> every deck is crafted to order, so pickup and delivery dates start 3 days after you order."
+    : "<b>Pickup:</b> send your order and we'll send you a payment link. <b>Delivery:</b> send your order and we'll add delivery and setup to your final invoice. <b>Lead time:</b> every deck is crafted to order, so pickup and delivery dates start 3 days after you order.";
+
+  var yp = document.getElementById("yurt-plans"); h = "";
+  YURTS.forEach(function (sz, i) {
+    var area = Math.round(Math.PI * Math.pow(sz.ft / 2, 2));
+    h += '<div class="plan"><div class="drawing">' + yurtSVG(sz, i) + '</div><div class="meta"><h3>' + sz.ft + "' round</h3><span class=\"mono\">≈ " + area + ' sq ft</span></div><p class="price">' + money(sz.osb) + ' <span>OSB top</span></p><p class="price alt-price">' + money(sz.boards) + ' <span>deck boards</span></p><p>' + sz.use + '</p>' +
+      '<p class="dep">50% deposit to order<br>OSB ' + money(deposit(sz.osb)) + ' &middot; Boards ' + money(deposit(sz.boards)) + '</p>' +
+      '<div class="order">' +
+        payBtn(PAY.yurt[i].osb, "btn solid sm", "Order – OSB top", 'data-quote="yurt-order" data-i="' + i + '" data-top="osb"') +
+        payBtn(PAY.yurt[i].boards, "btn sm", "Order – deck boards", 'data-quote="yurt-order" data-i="' + i + '" data-top="boards"') +
+      '</div></div>';
+  });
+  yp.innerHTML = h;
+  var yurtLinks = PAY.yurt.some(function (y) { return y.osb || y.boards; });
+  document.getElementById("yurt-order-note").innerHTML = yurtLinks
+    ? "<b>How ordering works:</b> pay a 50% deposit online to reserve your platform. The balance, plus delivery and setup, is invoiced before install."
+    : "<b>How ordering works:</b> send your order and we'll send a link for the 50% deposit to reserve your platform. The balance, plus delivery and setup, is invoiced before install.";
+
+  /* ---------- combiner ---------- */
+  var counts = [0, 0, 0, 2], rows = document.getElementById("rows"), r = "";
+  DECKS.forEach(function (sz, i) {
+    r += '<div class="row"><span class="name">' + sz.d + "' × " + sz.l + "'<small>" + money(sz.price) + '</small></span>' +
+      '<span class="stepper"><button type="button" id="minus' + i + '" data-i="' + i + '" data-dir="-1" aria-label="Remove one ' + sz.d + ' by ' + sz.l + ' section">&minus;</button>' +
+      '<output id="count' + i + '" aria-live="polite">' + counts[i] + '</output>' +
+      '<button type="button" id="plus' + i + '" data-i="' + i + '" data-dir="1" aria-label="Add one ' + sz.d + ' by ' + sz.l + ' section">+</button></span></div>';
+  });
+  rows.innerHTML = r;
+  function total() {
+    var t = 0, n = 0, cost = 0;
+    counts.forEach(function (c, i) { t += c * DECKS[i].d * DECKS[i].l; cost += c * DECKS[i].price; n += c; document.getElementById("count" + i).textContent = c; });
+    document.getElementById("total").textContent = money(cost);
+    document.getElementById("total-note").textContent = n === 0 ? "Add a section to start" : n + (n === 1 ? " section" : " sections") + " \u00b7 " + t + " sq ft";
+  }
+  total();
+  rows.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    var i = +b.getAttribute("data-i"); counts[i] = Math.max(0, Math.min(12, counts[i] + +b.getAttribute("data-dir"))); total();
+  });
+
+  /* ---------- sidebar ---------- */
+  var side = document.getElementById("side"), menuBtn = document.getElementById("menu-btn"), closeSide = document.getElementById("close-side");
+  function setMenu(open) {
+    side.classList.toggle("open", open); menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open) closeSide.focus();
+  }
+  menuBtn.addEventListener("click", function () { setMenu(true); });
+  closeSide.addEventListener("click", function () { setMenu(false); menuBtn.focus(); });
+  side.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
+  document.addEventListener("click", function (e) {
+    if (side.classList.contains("open") && !side.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
+  });
+  var links = Array.prototype.slice.call(document.querySelectorAll("#side-nav a"));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+  function spy() {
+    if (location.hash === "#quote") { links.forEach(function (a) { a.setAttribute("aria-current", "false"); }); return; }
+    var y = window.innerHeight * 0.35, cur = 0;
+    secs.forEach(function (s, i) { if (s && s.getBoundingClientRect().top <= y) cur = i; });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) cur = secs.length - 1;
+    links.forEach(function (a, i) { a.setAttribute("aria-current", i === cur ? "true" : "false"); });
+  }
+  window.addEventListener("scroll", spy, { passive: true }); spy();
+
+  /* ---------- slideshow ---------- */
+  var slides = Array.prototype.slice.call(document.querySelectorAll("#stage .slide"));
+  function load(s) { var d = s.getAttribute("data-src"); if (d && !s.src) s.src = d; }
+  var si = 0, n = slides.length, timer = null, paused = false, dots = document.getElementById("dots");
+  slides.forEach(function (s, j) {
+    var b = document.createElement("button"); b.type = "button"; b.id = "dot" + j;
+    b.setAttribute("aria-label", "Show " + s.getAttribute("data-title"));
+    b.addEventListener("click", function () { go(j); restart(); });
+    dots.appendChild(b);
+  });
+  function go(j) {
+    si = (j + n) % n; load(slides[si]); load(slides[(si + 1) % n]);
+    slides.forEach(function (s, k) { s.classList.toggle("on", k === si); if (k === si) s.removeAttribute("aria-hidden"); else s.setAttribute("aria-hidden", "true"); });
+    Array.prototype.forEach.call(dots.children, function (d, k) { d.setAttribute("aria-current", k === si ? "true" : "false"); });
+    document.getElementById("s-kind").textContent = slides[si].getAttribute("data-kind");
+    document.getElementById("s-title").textContent = slides[si].getAttribute("data-title");
+    document.getElementById("s-count").textContent = (si + 1) + " / " + n;
+  }
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function restart() { clearInterval(timer); if (!reduce && !paused) timer = setInterval(function () { go(si + 1); }, 5000); }
+  document.getElementById("prev").addEventListener("click", function () { go(si - 1); restart(); });
+  document.getElementById("next").addEventListener("click", function () { go(si + 1); restart(); });
+  var show = document.getElementById("show"), stage = document.getElementById("stage");
+  show.addEventListener("mouseenter", function () { paused = true; clearInterval(timer); });
+  show.addEventListener("mouseleave", function () { paused = false; restart(); });
+  show.addEventListener("focusin", function () { paused = true; clearInterval(timer); });
+  show.addEventListener("focusout", function () { paused = false; restart(); });
+  var x0 = null;
+  stage.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+  stage.addEventListener("touchend", function (e) {
+    if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 40) { go(dx < 0 ? si + 1 : si - 1); restart(); }
+  });
+  go(0); restart();
+
+  /* ---------- gallery lightbox ---------- */
+  var lb = document.getElementById("lightbox"), lbImg = document.getElementById("lb-img"), lbCap = document.getElementById("lb-cap"),
+      lbCount = document.getElementById("lb-count"), lbClose = document.getElementById("lb-close"), set = [], at = 0, opener = null, paper = false;
+  function show2(k) {
+    at = (k + set.length) % set.length;
+    var img = set[at].querySelector("img"), fig = set[at].closest("figure"), b = fig && fig.querySelector("figcaption b");
+    lbImg.src = img.src; lbImg.alt = img.alt; lbImg.classList.toggle("paper", paper);
+    lbCap.textContent = b ? b.textContent : img.alt;
+    lbCount.textContent = set.length > 1 ? (at + 1) + " / " + set.length : "";
+  }
+  document.addEventListener("click", function (e) {
+    var item = e.target.closest(".g-item");
+    if (item) {
+      var g = item.closest(".gallery");
+      set = Array.prototype.slice.call(g.querySelectorAll(".g-item"));
+      paper = g.classList.contains("paper");
+      document.getElementById("lb-prev").hidden = document.getElementById("lb-next").hidden = set.length < 2;
+      opener = item; show2(set.indexOf(item)); lb.hidden = false; document.body.style.overflow = "hidden"; lbClose.focus();
+      return;
+    }
+    if (!lb.hidden && (e.target === lb || e.target.id === "lb-stage")) closeLb();
+  });
+  function closeLb() { lb.hidden = true; lbImg.removeAttribute("src"); document.body.style.overflow = ""; if (opener) opener.focus(); }
+  lbClose.addEventListener("click", closeLb);
+  document.getElementById("lb-prev").addEventListener("click", function () { show2(at - 1); });
+  document.getElementById("lb-next").addEventListener("click", function () { show2(at + 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { if (!lb.hidden) closeLb(); else if (side.classList.contains("open")) { setMenu(false); menuBtn.focus(); } }
+    if (lb.hidden) return;
+    if (e.key === "ArrowRight") show2(at + 1);
+    if (e.key === "ArrowLeft") show2(at - 1);
+  });
+  var lx = null;
+  lb.addEventListener("touchstart", function (e) { lx = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener("touchend", function (e) {
+    if (lx === null || set.length < 2) return; var dx = e.changedTouches[0].clientX - lx; lx = null;
+    if (Math.abs(dx) > 40) show2(dx < 0 ? at + 1 : at - 1);
+  });
+
+  /* ---------- quote page ---------- */
+  var qView = document.getElementById("quote"), mainEl = document.querySelector("main"), footEl = document.querySelector("footer");
+  var qType = document.getElementById("q-type"), qDeck = document.getElementById("q-deck"),
+      qYSize = document.getElementById("q-ysize"), qYTop = document.getElementById("q-ytop"),
+      qEst = document.getElementById("q-est"), qEstNote = document.getElementById("q-est-note"),
+      qForm = document.getElementById("q-form"), qDone = document.getElementById("q-done"), qErr = document.getElementById("q-err"),
+      qText = document.getElementById("q-text"), qCopied = document.getElementById("q-copied");
+  var LABEL = { deck: "Deck", yurt: "Yurt platform", blueprint: "DIY blueprint", custom: "Custom craft", general: "General quote" };
+  var pendingQuote = null, deckOverride = null, orderMode = "";
+  var qTitle = document.getElementById("q-title");
+
+  function deckSummary() {
+    var lines = [], cost = 0;
+    counts.forEach(function (c, i) {
+      if (!c) return;
+      var sz = DECKS[i]; cost += c * sz.price;
+      lines.push(c + " x " + sz.d + "' x " + sz.l + "' deck section" + (c > 1 ? "s" : "") + " - " + money(c * sz.price));
+    });
+    return { text: lines.join("\n"), cost: cost };
+  }
+  function estimate() {
+    var t = qType.value, est = 0, note = "";
+    if (t === "deck") {
+      var s = deckOverride || deckSummary(); est = s.cost;
+      if (orderMode === "delivery") note = "Delivery and setup are added to your final invoice.";
+      else if (orderMode === "pickup") note = "Pickup order. We'll send you a payment link.";
+      else note = est ? "From the deck calculator.\nBefore delivery and setup." : "Add sections in the deck calculator, or describe the decks you need.";
+    } else if (t === "yurt") {
+      var y = YURTS[+qYSize.value]; est = qYTop.value === "boards" ? y.boards : y.osb;
+      note = y.ft + "' round, " + (qYTop.value === "boards" ? "finished deck boards" : "OSB subfloor") + ".\n50% deposit to order: " + money(deposit(est)) + ".\nBalance, plus delivery and setup, invoiced before install.";
+    } else {
+      note = t === "blueprint" ? "Blueprint sets are priced after we talk about your project." : "Priced after we talk about your project.";
+    }
+    qEst.textContent = est ? money(est) : "By quote";
+    qEstNote.textContent = note;
+    return est;
+  }
+  function showGroups() {
+    var t = qType.value;
+    document.getElementById("g-deck").hidden = t !== "deck";
+    document.getElementById("g-yurt").hidden = t !== "yurt";
+    document.getElementById("g-plan").hidden = t !== "blueprint";
+    estimate();
+  }
+  var LEAD_DAYS = 3, qDate = document.getElementById("q-date"), qDateLabel = document.getElementById("q-date-label");
+  function earliestDate() {
+    var d = new Date(); d.setDate(d.getDate() + LEAD_DAYS);
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function niceDate(iso) {
+    var p = iso.split("-"); var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  }
+  function setDateField(mode) {
+    var min = earliestDate(); qDate.min = min;
+    if (qDate.value && qDate.value < min) qDate.value = "";
+    qDateLabel.textContent = mode === "pickup" ? "Pickup date" : mode === "delivery" ? "Delivery date" : "Date needed by";
+    document.getElementById("q-date-hint").textContent = "Earliest date: " + niceDate(min) + ". We need 3 days to craft your order.";
+  }
+  function prefill(req) {
+    var kind = req && req.kind;
+    setDateField(req && req.kind === "deck-order" ? req.mode : "");
+    deckOverride = null; orderMode = ""; qTitle.textContent = "Request a quote";
+    document.getElementById("q-delivery").selectedIndex = 0;
+    if (kind === "deck-order") {
+      var d = DECKS[req.i]; orderMode = req.mode;
+      deckOverride = { text: "1 x " + d.d + "' x " + d.l + "' deck - " + money(d.price), cost: d.price };
+      qType.value = "deck"; qDeck.value = deckOverride.text;
+      document.getElementById("q-delivery").value = req.mode === "delivery" ? "Yes, deliver and set up" : "No, I'll pick it up";
+      qTitle.textContent = req.mode === "delivery" ? "Order with delivery" : "Order for pickup";
+      qForm.hidden = false; qDone.hidden = true; qErr.hidden = true; showGroups(); return;
+    }
+    if (kind === "yurt-order") {
+      qType.value = "yurt"; qYSize.value = String(req.i); qYTop.value = req.top;
+      qTitle.textContent = "Order a yurt platform";
+      qForm.hidden = false; qDone.hidden = true; qErr.hidden = true; showGroups(); return;
+    }
+    if (kind && LABEL[kind]) qType.value = kind;
+    if (kind === "deck" || (qType.value === "deck" && !qDeck.value)) qDeck.value = deckSummary().text;
+    qForm.hidden = false; qDone.hidden = true; qErr.hidden = true;
+    showGroups();
+  }
+  [qType, qYSize, qYTop].forEach(function (el) { el.addEventListener("change", showGroups); });
+
+  function showQuote(on) {
+    qView.hidden = !on; mainEl.hidden = on; footEl.hidden = on;
+    setTimeout(spy, 60);
+  }
+  function setHash(h) { try { if (location.hash !== h) history.pushState(null, "", h); } catch (err) {} }
+  function openQuote() {
+    showQuote(true);
+    prefill(pendingQuote); pendingQuote = null;
+    window.scrollTo(0, 0); qTitle.focus({ preventScroll: true });
+    setHash("#quote");
+  }
+  function goSection(id) {
+    var wasQuote = !qView.hidden;
+    showQuote(false);
+    var target = document.getElementById(id);
+    if (target) requestAnimationFrame(function () { target.scrollIntoView({ behavior: wasQuote ? "instant" : "smooth", block: "start" }); });
+    setHash("#" + id);
+  }
+  function route() {
+    if (location.hash === "#quote") { if (qView.hidden) openQuote(); }
+    else if (location.hash.length > 1) goSection(location.hash.slice(1));
+    else showQuote(false);
+  }
+  /* Every in-page link and button is handled here, so navigation works inside any viewer. */
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest('a[href^="#"]'); if (!a) return;
+    var id = a.getAttribute("href").slice(1); if (!id) return;
+    e.preventDefault();
+    if (a.hasAttribute("data-quote")) {
+      pendingQuote = { kind: a.getAttribute("data-quote"), i: +a.getAttribute("data-i") || 0, mode: a.getAttribute("data-mode"), top: a.getAttribute("data-top") };
+      openQuote();
+    } else if (id === "quote") { pendingQuote = null; openQuote(); }
+    else goSection(id);
+  });
+  window.addEventListener("popstate", route);
+  window.addEventListener("hashchange", route);
+  if (location.hash === "#quote") openQuote();
+
+  function val(id) { return document.getElementById(id).value.trim(); }
+  function buildText() {
+    var t = qType.value, est = estimate(), lines = ["Koure Forms - " + qTitle.textContent, ""];
+    lines.push("Name: " + val("q-name"));
+    lines.push("Phone: " + val("q-phone"));
+    if (val("q-email")) lines.push("Email: " + val("q-email"));
+    if (val("q-where")) lines.push("Project location: " + val("q-where"));
+    lines.push("Request: " + LABEL[t]);
+    if (t === "deck" && val("q-deck")) lines.push("Deck sections:\n" + val("q-deck"));
+    if (t === "yurt") { var y = YURTS[+qYSize.value], yp2 = qYTop.value === "boards" ? y.boards : y.osb; lines.push("Platform: " + y.ft + "' round, " + (qYTop.value === "boards" ? "finished deck boards" : "OSB subfloor")); lines.push("50% deposit to order: " + money(deposit(yp2))); }
+    if (t === "blueprint" && val("q-plan")) lines.push("Plan for: " + val("q-plan"));
+    lines.push("Estimated price: " + (est ? money(est) + " (before delivery and setup)" : "by quote"));
+    if (val("q-date")) lines.push(qDateLabel.textContent + ": " + niceDate(val("q-date")));
+    lines.push("Delivery and setup: " + document.getElementById("q-delivery").value);
+    if (val("q-notes")) lines.push("Notes: " + val("q-notes"));
+    return lines.join("\n");
+  }
+  qForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var missing = [];
+    if (!val("q-name")) missing.push("your name");
+    if (!val("q-phone")) missing.push("a phone number");
+    if (missing.length) { qErr.textContent = "Please add " + missing.join(" and ") + " so we can reach you."; qErr.hidden = false; document.getElementById(!val("q-name") ? "q-name" : "q-phone").focus(); return; }
+    if (val("q-date") && val("q-date") < earliestDate()) { qErr.textContent = "Please choose a date on or after " + niceDate(earliestDate()) + ". We need 3 days to craft your order."; qErr.hidden = false; qDate.focus(); return; }
+    qErr.hidden = true;
+    var text = buildText(), subject = "Quote request - " + LABEL[qType.value] + " - " + val("q-name");
+    qText.textContent = text;
+    document.getElementById("q-mail").href = "mailto:Koureforms@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(text);
+    document.getElementById("q-sms").href = "sms:+18282708000?&body=" + encodeURIComponent(text);
+    qForm.hidden = true; qDone.hidden = false; qCopied.textContent = "";
+    qDone.scrollIntoView({ block: "start" });
+  });
+  document.getElementById("q-edit").addEventListener("click", function () { qDone.hidden = true; qForm.hidden = false; });
+  function copyText(text, el) {
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(el); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      qCopied.textContent = "Selected. Press copy on your device to copy it.";
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () { qCopied.textContent = "Copied."; }, fallback);
+    } catch (err) { fallback(); }
+  }
+  document.getElementById("q-copy").addEventListener("click", function () { copyText(qText.textContent, qText); });
+  document.querySelectorAll("[data-copy]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var v = b.getAttribute("data-copy"), el = b.previousElementSibling;
+      try { navigator.clipboard.writeText(v).then(function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1500); }, function () { var r = document.createRange(); r.selectNodeContents(el); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }); }
+      catch (err) { var r = document.createRange(); r.selectNodeContents(el); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+    });
+  });
+})();
+</script>
