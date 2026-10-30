@@ -49,6 +49,19 @@ Yurt orders take a 50% deposit. Delivery and setup are quoted separately.
 
 **GitHub Pages:** repo **Settings → Pages → Deploy from a branch → `main` / root**.
 
+## Quote form → Google Sheets (Make.com)
+
+When a customer submits the quote/order page, the site posts the request to the Make.com
+webhook `https://hook.us2.make.com/awt8x4eg9qcprlmh5khlevie2idvyi4q`
+(scenario **Koure Forms Inbound Lead Capture**), which adds a row in Google Sheets.
+
+Fields sent (form-encoded): `name`, `email`, `phone`, `company`, `project_type`, `location`,
+`budget`, `message`, `source_url`, plus `request`, `details`, `deposit`, `date_label`, `date`,
+`delivery`, `notes`, `submitted_at`.
+
+If sending fails, the page falls back to Email / Text / Copy buttons. The webhook URL is the
+`LEAD_WEBHOOK` value in `src/site.src.html`.
+
 ## Connect Stripe payment links
 
 Pickup and yurt order buttons open the quote page until payment links are added.

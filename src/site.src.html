@@ -743,6 +743,10 @@ button.btn.solid { background: var(--ink); }
               <div class="field"><label for="q-email">Email</label><input id="q-email" name="email" type="email" autocomplete="email"></div>
               <div class="field"><label for="q-where">Project location (city / county)</label><input id="q-where" name="where" placeholder="e.g. Hickory, Catawba County"></div>
             </div>
+            <div class="q-row">
+              <div class="field"><label for="q-company">Company or event (optional)</label><input id="q-company" name="company" autocomplete="organization"></div>
+              <div class="field"></div>
+            </div>
             <div class="field">
               <label for="q-type">What do you need? <i>*</i></label>
               <select id="q-type" name="type">
@@ -781,8 +785,8 @@ button.btn.solid { background: var(--ink); }
           </form>
 
           <div class="q-done" id="q-done" hidden>
-            <h3>Your request is ready to send</h3>
-            <p class="q-status">Send it to Koure Forms with one of these buttons. If your email or text app doesn't open, copy the request and send it to the phone number or email shown.</p>
+            <h3 id="q-done-title">Sending your request…</h3>
+            <p class="q-status" id="q-send-status" aria-live="polite">One moment.</p>
             <pre id="q-text"></pre>
             <div class="q-actions">
               <a class="btn solid" id="q-mail" href="#quote">Email it</a>
@@ -1192,6 +1196,46 @@ button.btn.solid { background: var(--ink); }
     if (val("q-notes")) lines.push("Notes: " + val("q-notes"));
     return lines.join("\n");
   }
+  /* Make.com webhook: each request becomes a row in Google Sheets (scenario "Koure Forms Inbound Lead Capture"). */
+  var LEAD_WEBHOOK = "https://hook.us2.make.com/awt8x4eg9qcprlmh5khlevie2idvyi4q";
+  function leadPayload(text) {
+    var t = qType.value, est = estimate(), y = YURTS[+qYSize.value];
+    var details = t === "deck" ? val("q-deck").replace(/\n/g, "; ")
+      : t === "yurt" ? y.ft + "' round, " + (qYTop.value === "boards" ? "finished deck boards" : "OSB subfloor")
+      : t === "blueprint" ? val("q-plan") : "";
+    return {
+      name: val("q-name"),
+      email: val("q-email"),
+      phone: val("q-phone"),
+      company: val("q-company"),
+      project_type: qTitle.textContent === "Request a quote" ? LABEL[t] : LABEL[t] + " - " + qTitle.textContent,
+      location: val("q-where"),
+      budget: est ? money(est) : "By quote",
+      message: text,
+      source_url: location.href.split("#")[0],
+      request: qTitle.textContent,
+      details: details,
+      deposit: t === "yurt" ? money(deposit(est)) : "",
+      date_label: qDateLabel.textContent,
+      date: val("q-date"),
+      delivery: document.getElementById("q-delivery").value,
+      notes: val("q-notes"),
+      submitted_at: new Date().toISOString()
+    };
+  }
+  function sendLead(data) {
+    var body = new URLSearchParams();
+    Object.keys(data).forEach(function (k) { body.append(k, data[k] == null ? "" : String(data[k])); });
+    /* Form-encoded "simple" request: no CORS preflight, and Make parses each field. */
+    return fetch(LEAD_WEBHOOK, { method: "POST", mode: "no-cors", body: body, keepalive: true });
+  }
+  function setSendStatus(state) {
+    var title = document.getElementById("q-done-title"), status = document.getElementById("q-send-status");
+    if (state === "sending") { title.textContent = "Sending your request…"; status.textContent = "One moment."; }
+    else if (state === "sent") { title.textContent = "Request sent"; status.textContent = "Thanks! Koure Forms received your request and will reach out by phone or email. Want a copy? Use the buttons below."; }
+    else { title.textContent = "Your request is ready to send"; status.textContent = "We couldn't send it from this page. Send it with one of these buttons instead. If your email or text app doesn't open, copy the request and send it to the phone number or email shown."; }
+  }
+
   qForm.addEventListener("submit", function (e) {
     e.preventDefault();
     var missing = [];
@@ -1206,6 +1250,12 @@ button.btn.solid { background: var(--ink); }
     document.getElementById("q-sms").href = "sms:+18282708000?&body=" + encodeURIComponent(text);
     qForm.hidden = true; qDone.hidden = false; qCopied.textContent = "";
     qDone.scrollIntoView({ block: "start" });
+    setSendStatus("sending");
+    var submitBtn = document.getElementById("q-submit"); submitBtn.disabled = true;
+    try {
+      sendLead(leadPayload(text)).then(function () { setSendStatus("sent"); }, function () { setSendStatus("failed"); })
+        .then(function () { submitBtn.disabled = false; });
+    } catch (err) { setSendStatus("failed"); submitBtn.disabled = false; }
   });
   document.getElementById("q-edit").addEventListener("click", function () { qDone.hidden = true; qForm.hidden = false; });
   function copyText(text, el) {
